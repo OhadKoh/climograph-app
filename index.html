@@ -119,3 +119,108 @@
                 <td><input type="number" value="28" class="temp"></td>
                 <td><input type="number" value="29" class="temp"></td>
                 <td><input type="number" value="27" class="temp"></td>
+                <td><input type="number" value="24" class="temp"></td>
+                <td><input type="number" value="18" class="temp"></td>
+                <td><input type="number" value="14" class="temp"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button onclick="updateChart()">צור גרף</button>
+
+    <div class="chart-wrapper">
+        <canvas id="climograph"></canvas>
+    </div>
+</div>
+
+<script>
+    let myChart = null;
+
+    function getInputs(className) {
+        const inputs = document.querySelectorAll('.' + className);
+        return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+    }
+
+    function updateChart() {
+        const rainData = getInputs('rain');
+        const tempData = getInputs('temp');
+        const ctx = document.getElementById('climograph').getContext('2d');
+
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'],
+                datasets: [
+                    {
+                        label: 'משקעים (מ"מ)',
+                        data: rainData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y',
+                        order: 2
+                    },
+                    {
+                        label: 'טמפרטורה (C°)',
+                        data: tempData,
+                        type: 'line',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'קלימוגרף שנתי'
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'משקעים (מ"מ)'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'טמפרטורה (C°)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // יצירת הגרף בעת טעינת העמוד
+    window.onload = updateChart;
+</script>
+
+</body>
+</html>
