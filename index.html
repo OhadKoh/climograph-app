@@ -28,11 +28,9 @@
             position: relative;
         }
         
-        /* כותרות */
         .header-section {
             margin-bottom: 20px;
         }
-        /* במצב עריכה - שדה קלט. במצב נקי - טקסט רגיל */
         .header-section input {
             font-size: 26px;
             padding: 8px;
@@ -44,9 +42,10 @@
             background: transparent;
             color: #2c3e50;
         }
+        /* ביטול עריכת כותרת במצב נקי */
         body.clean-mode .header-section input {
-            border-bottom: none; /* ביטול הקו התחתון לתלמיד */
-            pointer-events: none; /* ביטול אפשרות כתיבה לתלמיד */
+            border-bottom: none;
+            pointer-events: none;
         }
 
         .subtitle {
@@ -56,7 +55,6 @@
             font-weight: bold;
         }
 
-        /* טיפ להדבקה */
         .paste-hint {
             font-size: 13px;
             color: #27ae60;
@@ -68,7 +66,6 @@
             border: 1px solid #d5f5e3;
         }
 
-        /* טבלה */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -99,7 +96,6 @@
             font-weight: bold;
         }
 
-        /* כפתור ראשי */
         button.main-btn {
             background-color: #2980b9;
             color: white;
@@ -122,7 +118,7 @@
             width: 100%;
         }
         
-        /* === עיצוב המקרא החדש === */
+        /* מקרא */
         .custom-legend {
             display: flex;
             justify-content: center;
@@ -142,16 +138,12 @@
             color: #666;
             font-weight: 500;
         }
-        
-        /* סמל המשקעים (ריבוע כחול) */
         .symbol-rain {
             width: 14px;
             height: 14px;
             background-color: rgba(54, 162, 235, 0.7);
             border: 1px solid rgba(54, 162, 235, 1);
         }
-
-        /* סמל הטמפרטורה (קו אדום עם נקודה לבנה במרכז) */
         .symbol-temp-container {
             position: relative;
             width: 30px;
@@ -168,8 +160,8 @@
         .symbol-temp-dot {
             width: 10px;
             height: 10px;
-            background-color: #fff; /* לבן מבפנים */
-            border: 2px solid #e74c3c; /* מסגרת אדומה */
+            background-color: #fff;
+            border: 2px solid #e74c3c;
             border-radius: 50%;
             position: absolute;
             z-index: 2;
@@ -194,13 +186,16 @@
             right: 10px;
             font-size: 12px;
             background: #eee;
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            opacity: 0.5;
+            opacity: 0.6;
+            border: 1px solid #ccc;
+            z-index: 100;
         }
         #editModeBtn:hover {
             opacity: 1;
+            background: #fff;
         }
     </style>
 </head>
@@ -210,8 +205,7 @@
     
     <div class="instructions editor-only">
         <strong>הוראות למורה:</strong>
-        מלא נתונים > לחץ על הכפתור הכחול > העתק את הכתובת החדשה (URL) ל-My Test Box.<br>
-        הכתובת תכיל באופן אוטומטי "מצב נקי" ללא הטבלה.
+        לאחר עדכון הנתונים, לחץ על הכפתור הכחול. הטבלה תיסגר והקישור יתעדכן אוטומטית.
     </div>
 
     <div class="header-section">
@@ -220,7 +214,7 @@
     </div>
 
     <div class="paste-hint editor-only">
-        💡 טיפ: עמוד על התא של "ינואר" והדבק (Ctrl+V) שורה מאקסל.
+        💡 טיפ: ניתן להדביק שורה מאקסל על התא של ינואר (Ctrl+V)
     </div>
 
     <table id="dataTable" class="editor-only">
@@ -275,7 +269,7 @@
         </tbody>
     </table>
 
-    <button onclick="generateAndSave()" class="main-btn editor-only">עדכן גרף ושמור קישור</button>
+    <button onclick="generateAndSave()" class="main-btn editor-only">שמור שינויים וסגור עריכה</button>
 
     <div class="chart-wrapper">
         <canvas id="climograph"></canvas>
@@ -335,7 +329,7 @@
     function loadFromURL() {
         const params = new URLSearchParams(window.location.search);
         
-        // בדיקה אם להפעיל מצב נקי
+        // בדיקה אם המצב הנקי הופעל
         if (params.get('view') === 'clean') {
             document.body.classList.add('clean-mode');
             document.getElementById('editModeBtn').style.display = 'block';
@@ -359,23 +353,33 @@
         const rain = getInputs('rain').join(',');
         const temp = getInputs('temp').join(',');
         
-        // הוספת הפרמטר view=clean לקישור החדש
+        // יצירת URL חדש
         const newUrl = `${window.location.pathname}?name=${encodeURIComponent(name)}&rain=${rain}&temp=${temp}&view=clean`;
         window.history.pushState({path: newUrl}, '', newUrl);
         
+        // פידבק בכפתור וסגירה מיידית
         const btn = document.querySelector('button.main-btn');
         const originalText = btn.innerText;
-        btn.innerText = "נשמר! הקישור למעלה מוכן להטמעה (ללא טבלה)";
+        btn.innerText = "נשמר! סוגר...";
         btn.style.backgroundColor = "#27ae60";
-        setTimeout(() => { btn.innerText = originalText; btn.style.backgroundColor = "#2980b9"; }, 3500);
+
+        // סגירת מצב עריכה
+        setTimeout(() => {
+            document.body.classList.add('clean-mode'); // הסתרת הטבלה
+            document.getElementById('editModeBtn').style.display = 'block'; // הצגת כפתור העיפרון הקטן
+            
+            // איפוס הכפתור לפעם הבאה
+            btn.innerText = originalText;
+            btn.style.backgroundColor = "#2980b9";
+        }, 500); // השהייה של חצי שנייה כדי שתראה שהלחיצה נקלטה
     }
 
     function toggleEditMode() {
-        // הסרת המצב הנקי כדי לאפשר עריכה
+        // כניסה למצב עריכה
         document.body.classList.remove('clean-mode');
         document.getElementById('editModeBtn').style.display = 'none';
         
-        // הסרת view=clean מה-URL כדי שאם יעשו רענון זה ישאר בעריכה
+        // הסרת view=clean מהכתובת כדי שריענון ישאיר את העריכה פתוחה אם צריך
         const params = new URLSearchParams(window.location.search);
         params.delete('view');
         const newUrl = `${window.location.pathname}?${params.toString()}`;
@@ -423,8 +427,8 @@
                         borderColor: '#e74c3c',
                         backgroundColor: '#e74c3c',
                         borderWidth: 3,
-                        pointBackgroundColor: '#fff', // נקודה לבנה
-                        pointBorderColor: '#e74c3c', // מסגרת אדומה
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#e74c3c',
                         pointRadius: 5,
                         pointHoverRadius: 7,
                         tension: 0.2,
@@ -481,4 +485,3 @@
 
 </body>
 </html>
-
