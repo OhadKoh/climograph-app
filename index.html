@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fff; /* רקע לבן נקי */
+            background-color: #fff;
             color: #333;
             margin: 0;
             padding: 10px;
@@ -19,28 +19,40 @@
             margin: 0 auto;
             background: white;
             padding: 15px;
-            /* הסרתי מסגרת כדי שייראה טבעי בתוך Iframe */
         }
         
-        /* עיצוב אזור הכותרת */
+        /* כותרת ושם המקום */
         .header-input {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .header-input input {
-            font-size: 24px;
+            font-size: 22px;
             padding: 10px;
             width: 80%;
             border: 2px solid #3498db;
             border-radius: 8px;
             text-align: center;
             font-weight: bold;
+            background: #fdfdfd;
         }
 
-        /* עיצוב הטבלה */
+        /* טיפ להדבקה */
+        .paste-hint {
+            font-size: 13px;
+            color: #27ae60;
+            background: #eafaf1;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #d5f5e3;
+        }
+
+        /* טבלה */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 14px;
             direction: ltr; 
         }
@@ -53,7 +65,6 @@
             background-color: #eee;
             font-weight: bold;
         }
-        /* עיצוב שדות הקלט בטבלה */
         td input {
             width: 90%;
             border: none;
@@ -65,38 +76,42 @@
         td input:focus {
             background-color: #e8f0fe;
             outline: none;
+            font-weight: bold;
         }
 
-        /* כפתור */
+        /* כפתור ראשי */
         button {
-            background-color: #27ae60;
+            background-color: #2980b9;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 30px;
             font-size: 18px;
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background 0.2s;
         }
         button:hover {
-            background-color: #219150;
+            background-color: #1f618d;
+            transform: scale(1.05);
         }
 
         .chart-wrapper {
             position: relative;
-            height: 500px; /* גובה הגרף */
+            height: 500px;
             width: 100%;
         }
         
-        /* הסתרת הוראות בהדפסה או הטמעה אם רוצים */
         .instructions {
             font-size: 0.9em;
-            color: #666;
+            color: #555;
             margin-bottom: 15px;
-            background: #f9f9f9;
+            background: #f4f6f7;
             padding: 10px;
             border-radius: 5px;
+            border-right: 4px solid #3498db;
+            text-align: right;
         }
     </style>
 </head>
@@ -105,12 +120,18 @@
 <div class="container">
     
     <div class="instructions">
-        <strong>הוראות למורה:</strong> מלא את שם המקום ואת הנתונים. לחץ על הכפתור הירוק. 
-        לאחר מכן, העתק את הכתובת (URL) שנוצרה למעלה והדבק אותה ב-My Test Box. הכתובת שומרת את הנתונים!
+        <strong>הוראות למורה:</strong>
+        1. מלא את שם המקום והנתונים (ניתן להעתיק שורה מאקסל ולהדביק בתא הראשון).<br>
+        2. לחץ על הכפתור הכחול לעדכון.<br>
+        3. <strong>חשוב:</strong> העתק את הכתובת (URL) שנוצרה למעלה והדבק אותה ב-My Test Box. הכתובת מכילה את כל המידע!
     </div>
 
     <div class="header-input">
-        <input type="text" id="locationName" placeholder="הקלד כאן את שם המקום (למשל: מקסיקו סיטי)">
+        <input type="text" id="locationName" placeholder="שם המקום (למשל: לונדון)">
+    </div>
+
+    <div class="paste-hint">
+        💡 טיפ: עמוד על התא של "ינואר" והדבק (Ctrl+V) נתונים מאקסל כדי למלא את כל השורה.
     </div>
 
     <table id="dataTable">
@@ -134,33 +155,33 @@
         <tbody>
             <tr>
                 <td style="font-weight:bold; background:#eef; color:#0056b3;">משקעים (מ"מ)</td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
-                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 0)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 1)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 2)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 3)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 4)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 5)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 6)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 7)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 8)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 9)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 10)"></td>
+                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 11)"></td>
             </tr>
             <tr>
                 <td style="font-weight:bold; background:#ffe; color:#c0392b;">טמפרטורה (C°)</td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
-                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 0)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 1)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 2)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 3)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 4)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 5)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 6)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 7)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 8)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 9)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 10)"></td>
+                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 11)"></td>
             </tr>
         </tbody>
     </table>
@@ -175,12 +196,31 @@
 <script>
     let myChart = null;
 
-    // נתוני ברירת מחדל (אם אין נתונים בקישור)
+    // נתוני ברירת מחדל
     const defaultData = {
         name: "תל אביב (דוגמה)",
         rain: [130, 110, 70, 20, 5, 0, 0, 0, 1, 25, 80, 110],
         temp: [12, 13, 15, 19, 23, 26, 28, 29, 27, 24, 18, 14]
     };
+
+    // פונקציה חכמה להדבקת נתונים מאקסל
+    function handlePaste(e, className, startIndex) {
+        e.preventDefault();
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData('Text');
+        
+        // מזהה רווחים, פסיקים או טאבים (אקסל משתמש בטאבים)
+        const values = pastedData.split(/[\t\s,]+/).filter(v => v.trim() !== '');
+
+        const inputs = document.querySelectorAll('.' + className);
+        
+        values.forEach((val, i) => {
+            const index = startIndex + i;
+            if (index < inputs.length && !isNaN(parseFloat(val))) {
+                inputs[index].value = parseFloat(val);
+            }
+        });
+    }
 
     function getInputs(className) {
         const inputs = document.querySelectorAll('.' + className);
@@ -194,7 +234,7 @@
         });
     }
 
-    // פונקציה שקוראת את הנתונים מה-URL (כך המערכת זוכרת אם זה מקסיקו או ארה"ב)
+    // טעינת הנתונים מהכתובת (URL) כדי לשמור על הגרף הספציפי
     function loadFromURL() {
         const params = new URLSearchParams(window.location.search);
         
@@ -206,27 +246,33 @@
             setInputs('rain', rainData);
             setInputs('temp', tempData);
         } else {
-            // טעינת ברירת מחדל
             document.getElementById('locationName').value = defaultData.name;
             setInputs('rain', defaultData.rain);
             setInputs('temp', defaultData.temp);
         }
-        updateChart(); // יצירת הגרף מיד בטעינה
+        updateChart();
     }
 
-    // פונקציה שמעדכנת את הגרף וגם את ה-URL
+    // עדכון ושמירה ב-URL
     function generateAndSave() {
         updateChart();
-        
-        // שמירת הנתונים ל-URL
         const name = document.getElementById('locationName').value;
         const rain = getInputs('rain').join(',');
         const temp = getInputs('temp').join(',');
         
+        // יצירת כתובת חדשה ושמירה בהיסטוריה בלי לרענן
         const newUrl = `${window.location.pathname}?name=${encodeURIComponent(name)}&rain=${rain}&temp=${temp}`;
         window.history.pushState({path: newUrl}, '', newUrl);
         
-        alert('הגרף עודכן והקישור נשמר! עכשיו העתק את הכתובת למעלה (URL) והדבק אותה ב-My Test Box.');
+        // הבהוב קטן לכפתור לאישור
+        const btn = document.querySelector('button');
+        const originalText = btn.innerText;
+        btn.innerText = "נשמר! העתק את הכתובת למעלה";
+        btn.style.backgroundColor = "#27ae60";
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.backgroundColor = "#2980b9";
+        }, 3000);
     }
 
     function updateChart() {
@@ -240,7 +286,7 @@
         }
 
         myChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'bar', // ברירת מחדל
             data: {
                 labels: ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'],
                 datasets: [
@@ -252,22 +298,24 @@
                         borderWidth: 1,
                         yAxisID: 'y',
                         order: 2,
-                        barPercentage: 0.6 // עמודות צרות יותר כמו בתמונה
+                        barPercentage: 0.6,
+                        pointStyle: 'rect' // כופה צורת ריבוע במקרא
                     },
                     {
                         label: 'טמפרטורה (C°)',
                         data: tempData,
                         type: 'line',
-                        borderColor: '#e74c3c', // צבע אדום חזק
+                        borderColor: '#e74c3c',
                         backgroundColor: '#e74c3c',
                         borderWidth: 3,
-                        pointBackgroundColor: '#fff', // נקודה לבנה עם מסגרת אדומה
+                        pointBackgroundColor: '#fff',
                         pointBorderColor: '#e74c3c',
-                        pointRadius: 5, // נקודות גדולות וברורות
+                        pointRadius: 5,
                         pointHoverRadius: 7,
-                        tension: 0.1, // קו ישר יותר בין הנקודות
+                        tension: 0.2,
                         yAxisID: 'y1',
-                        order: 1
+                        order: 1,
+                        pointStyle: 'circle' // כופה צורת עיגול במקרא
                     }
                 ]
             },
@@ -275,26 +323,34 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
-                    mode: 'index', // מציג מידע על שני הנתונים יחד בריחוף
-                    intersect: false,
+                    mode: 'nearest', // נצמד לנקודה הקרובה ביותר
+                    intersect: true, // מציג מידע רק כשנוגעים באלמנט (פתרון ל"ריחוף צמוד")
+                    axis: 'x'
                 },
                 plugins: {
                     title: {
                         display: true,
                         text: 'קלימוגרף: ' + locationName,
-                        font: { size: 20 },
-                        padding: 20
+                        font: { size: 24 },
+                        padding: 20,
+                        color: '#2c3e50'
                     },
                     tooltip: {
                         enabled: true,
-                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        backgroundColor: 'rgba(0,0,0,0.85)',
                         titleFont: { size: 14 },
                         bodyFont: { size: 14 },
-                        padding: 10,
-                        displayColors: true
+                        padding: 12,
+                        displayColors: true,
+                        cornerRadius: 4
                     },
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true, // משתמש בצורות שהגדרנו (ריבוע ועיגול)
+                            padding: 25,
+                            font: { size: 14 }
+                        }
                     }
                 },
                 scales: {
@@ -311,7 +367,7 @@
                         display: true,
                         position: 'right',
                         title: { display: true, text: 'טמפרטורה (C°)', font: {weight: 'bold'} },
-                        grid: { drawOnChartArea: false } // שלא יהיו יותר מדי קווים ברקע
+                        grid: { drawOnChartArea: false }
                     },
                     x: {
                         grid: { display: false }
@@ -321,7 +377,6 @@
         });
     }
 
-    // הפעלה ראשונית
     window.onload = loadFromURL;
 </script>
 
