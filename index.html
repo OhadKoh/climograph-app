@@ -8,71 +8,110 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #fff; /* רקע לבן נקי */
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
         }
-        h2 {
-            color: #2c3e50;
-        }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            /* הסרתי מסגרת כדי שייראה טבעי בתוך Iframe */
         }
+        
+        /* עיצוב אזור הכותרת */
+        .header-input {
+            margin-bottom: 20px;
+        }
+        .header-input input {
+            font-size: 24px;
+            padding: 10px;
+            width: 80%;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* עיצוב הטבלה */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            direction: ltr; /* המספרים מסתדרים טוב יותר משמאל לימין בטבלה */
+            font-size: 14px;
+            direction: ltr; 
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #ccc;
+            padding: 5px;
             text-align: center;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #eee;
             font-weight: bold;
         }
-        input {
+        /* עיצוב שדות הקלט בטבלה */
+        td input {
             width: 90%;
             border: none;
             background: transparent;
             text-align: center;
             font-size: 14px;
+            font-family: inherit;
         }
+        td input:focus {
+            background-color: #e8f0fe;
+            outline: none;
+        }
+
+        /* כפתור */
         button {
-            background-color: #3498db;
+            background-color: #27ae60;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 24px;
+            font-size: 18px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: #219150;
         }
+
         .chart-wrapper {
             position: relative;
-            height: 400px;
+            height: 500px; /* גובה הגרף */
             width: 100%;
-            margin-top: 20px;
+        }
+        
+        /* הסתרת הוראות בהדפסה או הטמעה אם רוצים */
+        .instructions {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>מחולל קלימוגרף</h2>
-    <p>הזן את נתוני המשקעים והטמפרטורה בטבלה ולחץ על "צור גרף"</p>
+    
+    <div class="instructions">
+        <strong>הוראות למורה:</strong> מלא את שם המקום ואת הנתונים. לחץ על הכפתור הירוק. 
+        לאחר מכן, העתק את הכתובת (URL) שנוצרה למעלה והדבק אותה ב-My Test Box. הכתובת שומרת את הנתונים!
+    </div>
+
+    <div class="header-input">
+        <input type="text" id="locationName" placeholder="הקלד כאן את שם המקום (למשל: מקסיקו סיטי)">
+    </div>
 
     <table id="dataTable">
         <thead>
@@ -94,39 +133,39 @@
         </thead>
         <tbody>
             <tr>
-                <td style="font-weight:bold; background:#eef;">משקעים (מ"מ)</td>
-                <td><input type="number" value="130" class="rain"></td>
-                <td><input type="number" value="110" class="rain"></td>
-                <td><input type="number" value="70" class="rain"></td>
-                <td><input type="number" value="20" class="rain"></td>
-                <td><input type="number" value="5" class="rain"></td>
-                <td><input type="number" value="0" class="rain"></td>
-                <td><input type="number" value="0" class="rain"></td>
-                <td><input type="number" value="0" class="rain"></td>
-                <td><input type="number" value="1" class="rain"></td>
-                <td><input type="number" value="25" class="rain"></td>
-                <td><input type="number" value="80" class="rain"></td>
-                <td><input type="number" value="110" class="rain"></td>
+                <td style="font-weight:bold; background:#eef; color:#0056b3;">משקעים (מ"מ)</td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
+                <td><input type="number" class="rain"></td>
             </tr>
             <tr>
-                <td style="font-weight:bold; background:#ffe;">טמפרטורה (C°)</td>
-                <td><input type="number" value="12" class="temp"></td>
-                <td><input type="number" value="13" class="temp"></td>
-                <td><input type="number" value="15" class="temp"></td>
-                <td><input type="number" value="19" class="temp"></td>
-                <td><input type="number" value="23" class="temp"></td>
-                <td><input type="number" value="26" class="temp"></td>
-                <td><input type="number" value="28" class="temp"></td>
-                <td><input type="number" value="29" class="temp"></td>
-                <td><input type="number" value="27" class="temp"></td>
-                <td><input type="number" value="24" class="temp"></td>
-                <td><input type="number" value="18" class="temp"></td>
-                <td><input type="number" value="14" class="temp"></td>
+                <td style="font-weight:bold; background:#ffe; color:#c0392b;">טמפרטורה (C°)</td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
+                <td><input type="number" class="temp"></td>
             </tr>
         </tbody>
     </table>
 
-    <button onclick="updateChart()">צור גרף</button>
+    <button onclick="generateAndSave()">עדכן גרף ושמור קישור</button>
 
     <div class="chart-wrapper">
         <canvas id="climograph"></canvas>
@@ -136,14 +175,64 @@
 <script>
     let myChart = null;
 
+    // נתוני ברירת מחדל (אם אין נתונים בקישור)
+    const defaultData = {
+        name: "תל אביב (דוגמה)",
+        rain: [130, 110, 70, 20, 5, 0, 0, 0, 1, 25, 80, 110],
+        temp: [12, 13, 15, 19, 23, 26, 28, 29, 27, 24, 18, 14]
+    };
+
     function getInputs(className) {
         const inputs = document.querySelectorAll('.' + className);
         return Array.from(inputs).map(input => parseFloat(input.value) || 0);
     }
 
+    function setInputs(className, values) {
+        const inputs = document.querySelectorAll('.' + className);
+        inputs.forEach((input, index) => {
+            if (values[index] !== undefined) input.value = values[index];
+        });
+    }
+
+    // פונקציה שקוראת את הנתונים מה-URL (כך המערכת זוכרת אם זה מקסיקו או ארה"ב)
+    function loadFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        
+        if (params.has('name')) {
+            document.getElementById('locationName').value = decodeURIComponent(params.get('name'));
+            const rainData = params.get('rain').split(',').map(Number);
+            const tempData = params.get('temp').split(',').map(Number);
+            
+            setInputs('rain', rainData);
+            setInputs('temp', tempData);
+        } else {
+            // טעינת ברירת מחדל
+            document.getElementById('locationName').value = defaultData.name;
+            setInputs('rain', defaultData.rain);
+            setInputs('temp', defaultData.temp);
+        }
+        updateChart(); // יצירת הגרף מיד בטעינה
+    }
+
+    // פונקציה שמעדכנת את הגרף וגם את ה-URL
+    function generateAndSave() {
+        updateChart();
+        
+        // שמירת הנתונים ל-URL
+        const name = document.getElementById('locationName').value;
+        const rain = getInputs('rain').join(',');
+        const temp = getInputs('temp').join(',');
+        
+        const newUrl = `${window.location.pathname}?name=${encodeURIComponent(name)}&rain=${rain}&temp=${temp}`;
+        window.history.pushState({path: newUrl}, '', newUrl);
+        
+        alert('הגרף עודכן והקישור נשמר! עכשיו העתק את הכתובת למעלה (URL) והדבק אותה ב-My Test Box.');
+    }
+
     function updateChart() {
         const rainData = getInputs('rain');
         const tempData = getInputs('temp');
+        const locationName = document.getElementById('locationName').value;
         const ctx = document.getElementById('climograph').getContext('2d');
 
         if (myChart) {
@@ -158,20 +247,25 @@
                     {
                         label: 'משקעים (מ"מ)',
                         data: rainData,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1,
                         yAxisID: 'y',
-                        order: 2
+                        order: 2,
+                        barPercentage: 0.6 // עמודות צרות יותר כמו בתמונה
                     },
                     {
                         label: 'טמפרטורה (C°)',
                         data: tempData,
                         type: 'line',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: '#e74c3c', // צבע אדום חזק
+                        backgroundColor: '#e74c3c',
                         borderWidth: 3,
-                        tension: 0.3,
+                        pointBackgroundColor: '#fff', // נקודה לבנה עם מסגרת אדומה
+                        pointBorderColor: '#e74c3c',
+                        pointRadius: 5, // נקודות גדולות וברורות
+                        pointHoverRadius: 7,
+                        tension: 0.1, // קו ישר יותר בין הנקודות
                         yAxisID: 'y1',
                         order: 1
                     }
@@ -181,13 +275,26 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
-                    mode: 'index',
+                    mode: 'index', // מציג מידע על שני הנתונים יחד בריחוף
                     intersect: false,
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'קלימוגרף שנתי'
+                        text: 'קלימוגרף: ' + locationName,
+                        font: { size: 20 },
+                        padding: 20
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 14 },
+                        padding: 10,
+                        displayColors: true
+                    },
+                    legend: {
+                        position: 'bottom'
                     }
                 },
                 scales: {
@@ -195,31 +302,27 @@
                         type: 'linear',
                         display: true,
                         position: 'left',
-                        title: {
-                            display: true,
-                            text: 'משקעים (מ"מ)'
-                        },
-                        beginAtZero: true
+                        title: { display: true, text: 'משקעים (מ"מ)', font: {weight: 'bold'} },
+                        beginAtZero: true,
+                        grid: { color: '#f0f0f0' }
                     },
                     y1: {
                         type: 'linear',
                         display: true,
                         position: 'right',
-                        title: {
-                            display: true,
-                            text: 'טמפרטורה (C°)'
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        }
+                        title: { display: true, text: 'טמפרטורה (C°)', font: {weight: 'bold'} },
+                        grid: { drawOnChartArea: false } // שלא יהיו יותר מדי קווים ברקע
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 }
             }
         });
     }
 
-    // יצירת הגרף בעת טעינת העמוד
-    window.onload = updateChart;
+    // הפעלה ראשונית
+    window.onload = loadFromURL;
 </script>
 
 </body>
