@@ -29,7 +29,7 @@
         }
         
         .header-section {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .header-section input {
             font-size: 26px;
@@ -53,6 +53,24 @@
             color: #555;
             margin-top: 5px;
             font-weight: bold;
+        }
+
+        /* הגדרות ציר */
+        .axis-setting {
+            margin: 10px auto;
+            padding: 10px;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 8px;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .axis-setting input {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         .paste-hint {
@@ -178,7 +196,7 @@
             border-right: 3px solid #3498db;
         }
 
-        /* כפתור עריכה שמופיע רק במצב נקי */
+        /* כפתור עריכה */
         #editModeBtn {
             display: none;
             position: fixed;
@@ -204,13 +222,17 @@
 <div class="container">
     
     <div class="instructions editor-only">
-        <strong>הוראות למורה:</strong>
-        לאחר עדכון הנתונים, לחץ על הכפתור הכחול. הטבלה תיסגר והקישור יתעדכן אוטומטית.
+        <strong>הוראות למורה:</strong> מלא נתונים > קבע מקסימום לציר (אם צריך) > לחץ על הכפתור הכחול. הטבלה תיסגר והקישור יתעדכן.
     </div>
 
     <div class="header-section">
         <input type="text" id="locationName" placeholder="שם המקום">
         <div class="subtitle" id="precipSubtitle">ממוצע משקעים שנתי: 0 מ"מ</div>
+    </div>
+
+    <div class="axis-setting editor-only">
+        <label for="maxRainInput">📏 קבע גובה מקסימלי לציר הגשם (להשוואה): </label>
+        <input type="number" id="maxRainInput" placeholder="אוטו'">
     </div>
 
     <div class="paste-hint editor-only">
@@ -329,7 +351,6 @@
     function loadFromURL() {
         const params = new URLSearchParams(window.location.search);
         
-        // בדיקה אם המצב הנקי הופעל
         if (params.get('view') === 'clean') {
             document.body.classList.add('clean-mode');
             document.getElementById('editModeBtn').style.display = 'block';
@@ -339,6 +360,11 @@
             document.getElementById('locationName').value = decodeURIComponent(params.get('name'));
             setInputs('rain', params.get('rain').split(',').map(Number));
             setInputs('temp', params.get('temp').split(',').map(Number));
+            
+            // טעינת הגדרת המקסימום
+            if (params.has('ymax')) {
+                document.getElementById('maxRainInput').value = params.get('ymax');
+            }
         } else {
             document.getElementById('locationName').value = defaultData.name;
             setInputs('rain', defaultData.rain);
@@ -352,34 +378,28 @@
         const name = document.getElementById('locationName').value;
         const rain = getInputs('rain').join(',');
         const temp = getInputs('temp').join(',');
+        const ymax = document.getElementById('maxRainInput').value; // שמירת המקסימום
         
-        // יצירת URL חדש
-        const newUrl = `${window.location.pathname}?name=${encodeURIComponent(name)}&rain=${rain}&temp=${temp}&view=clean`;
+        const newUrl = `${window.location.pathname}?name=${encodeURIComponent(name)}&rain=${rain}&temp=${temp}&ymax=${ymax}&view=clean`;
         window.history.pushState({path: newUrl}, '', newUrl);
         
-        // פידבק בכפתור וסגירה מיידית
         const btn = document.querySelector('button.main-btn');
         const originalText = btn.innerText;
         btn.innerText = "נשמר! סוגר...";
         btn.style.backgroundColor = "#27ae60";
 
-        // סגירת מצב עריכה
         setTimeout(() => {
-            document.body.classList.add('clean-mode'); // הסתרת הטבלה
-            document.getElementById('editModeBtn').style.display = 'block'; // הצגת כפתור העיפרון הקטן
-            
-            // איפוס הכפתור לפעם הבאה
+            document.body.classList.add('clean-mode');
+            document.getElementById('editModeBtn').style.display = 'block';
             btn.innerText = originalText;
             btn.style.backgroundColor = "#2980b9";
-        }, 500); // השהייה של חצי שנייה כדי שתראה שהלחיצה נקלטה
+        }, 500);
     }
 
     function toggleEditMode() {
-        // כניסה למצב עריכה
         document.body.classList.remove('clean-mode');
         document.getElementById('editModeBtn').style.display = 'none';
         
-        // הסרת view=clean מהכתובת כדי שריענון ישאיר את העריכה פתוחה אם צריך
         const params = new URLSearchParams(window.location.search);
         params.delete('view');
         const newUrl = `${window.location.pathname}?${params.toString()}`;
@@ -396,6 +416,10 @@
         const rainData = getInputs('rain');
         const tempData = getInputs('temp');
         
+        // קריאת ערך המקסימום שהוגדר
+        const userMaxY = document.getElementById('maxRainInput').value;
+        const yAxisMax = userMaxY ? parseFloat(userMaxY) : null;
+
         const totalRain = rainData.reduce((a, b) => a + b, 0);
         document.getElementById('precipSubtitle').innerText = 'ממוצע משקעים שנתי: ' + Math.round(totalRain) + ' מ"מ';
 
@@ -461,6 +485,7 @@
                         type: 'linear',
                         display: true,
                         position: 'left',
+                        max: yAxisMax, // שימוש בערך שהוגדר (אם יש)
                         title: { display: true, text: 'משקעים (מ"מ)', font: {weight: 'bold'} },
                         beginAtZero: true,
                         grid: { color: '#f0f0f0' }
