@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מחולל קלימוגרף</title>
+    <title>מחולל קלימוגרף משווה</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -15,25 +15,20 @@
             text-align: center;
         }
         
-        /* הסתרת אלמנטים במצב תצוגה נקי */
-        body.clean-mode .editor-only {
-            display: none !important;
-        }
+        /* מצב נקי */
+        body.clean-mode .editor-only { display: none !important; }
 
-        .container {
-            max-width: 900px;
+        .main-container {
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
-            padding: 15px;
-            position: relative;
+            padding: 10px;
         }
-        
-        .header-section {
-            margin-bottom: 10px;
-        }
+
+        /* כותרות */
         .header-section input {
-            font-size: 26px;
-            padding: 8px;
+            font-size: 24px;
+            padding: 5px;
             width: 80%;
             border: none;
             border-bottom: 2px solid #3498db;
@@ -41,287 +36,199 @@
             font-weight: bold;
             background: transparent;
             color: #2c3e50;
+            margin-bottom: 5px;
         }
-        /* ביטול עריכת כותרת במצב נקי */
-        body.clean-mode .header-section input {
-            border-bottom: none;
-            pointer-events: none;
-        }
+        body.clean-mode .header-section input { border-bottom: none; pointer-events: none; }
+        .subtitle { font-size: 16px; color: #555; font-weight: bold; }
 
-        .subtitle {
-            font-size: 18px;
-            color: #555;
-            margin-top: 5px;
-            font-weight: bold;
+        /* אזור הגרפים - פלקס להצגה בצדדים */
+        .charts-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
         }
-
-        /* הגדרות ציר */
-        .axis-setting {
-            margin: 10px auto;
-            padding: 10px;
-            background: #fff8e1;
-            border: 1px solid #ffe082;
+        .chart-box {
+            flex: 1;
+            min-width: 350px; /* רוחב מינימלי לגרף */
+            max-width: 600px;
+            position: relative;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            border: 1px solid #eee; /* מסגרת עדינה לתיחום */
             border-radius: 8px;
-            display: inline-block;
-            font-size: 14px;
-        }
-        .axis-setting input {
-            width: 60px;
             padding: 5px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 4px;
         }
 
-        .paste-hint {
-            font-size: 13px;
-            color: #27ae60;
-            background: #eafaf1;
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            border: 1px solid #d5f5e3;
+        /* טבלאות */
+        .tables-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
         }
-
+        .table-box { flex: 1; min-width: 350px; }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
-            font-size: 14px;
+            font-size: 13px;
             direction: ltr; 
         }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 5px;
-            text-align: center;
-        }
-        th {
-            background-color: #eee;
-            font-weight: bold;
-        }
-        td input {
-            width: 90%;
-            border: none;
-            background: transparent;
-            text-align: center;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        td input:focus {
-            background-color: #e8f0fe;
-            outline: none;
-            font-weight: bold;
-        }
+        th, td { border: 1px solid #ccc; padding: 4px; text-align: center; }
+        th { background-color: #eee; font-weight: bold; }
+        td input { width: 90%; border: none; background: transparent; text-align: center; }
+        td input:focus { background-color: #e8f0fe; outline: none; }
 
-        button.main-btn {
+        /* כפתורים וממשק */
+        .controls-bar {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        button.action-btn {
             background-color: #2980b9;
             color: white;
             border: none;
-            padding: 10px 25px;
-            font-size: 16px;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: background 0.2s;
+            font-size: 16px;
         }
-        button.main-btn:hover {
-            background-color: #1f618d;
-        }
+        button.action-btn.secondary { background-color: #95a5a6; }
+        button.action-btn:hover { opacity: 0.9; }
 
-        .chart-wrapper {
-            position: relative;
-            height: 450px;
-            width: 100%;
-        }
-        
+        .axis-input input { width: 60px; padding: 5px; text-align: center; }
+
         /* מקרא */
         .custom-legend {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-top: 15px;
-            font-size: 14px;
+            display: flex; justify-content: center; gap: 20px; margin-top: 10px; font-size: 14px;
         }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        .legend-label {
-            margin-right: 8px;
-            color: #666;
-            font-weight: 500;
-        }
-        .symbol-rain {
-            width: 14px;
-            height: 14px;
-            background-color: rgba(54, 162, 235, 0.7);
-            border: 1px solid rgba(54, 162, 235, 1);
-        }
-        .symbol-temp-container {
-            position: relative;
-            width: 30px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .symbol-temp-line {
-            width: 100%;
-            height: 3px;
-            background-color: #e74c3c;
-        }
-        .symbol-temp-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #fff;
-            border: 2px solid #e74c3c;
-            border-radius: 50%;
-            position: absolute;
-            z-index: 2;
-        }
+        .legend-item { display: flex; align-items: center; cursor: pointer; }
+        .symbol-rain { width: 14px; height: 14px; background: rgba(54, 162, 235, 0.7); border: 1px solid blue; margin-left: 5px; }
+        .symbol-temp-dot { width: 10px; height: 10px; background: #fff; border: 2px solid #e74c3c; border-radius: 50%; display: inline-block; margin-left: 5px;}
+        .symbol-line { width: 20px; height: 3px; background: #e74c3c; display: flex; align-items: center; justify-content: center; margin-left: 5px;}
 
-        .instructions {
-            font-size: 0.85em;
-            color: #666;
-            margin-bottom: 10px;
-            background: #f4f6f7;
-            padding: 8px;
-            border-radius: 4px;
-            text-align: right;
-            border-right: 3px solid #3498db;
-        }
-
-        /* כפתור עריכה */
+        /* כפתור עריכה צף */
         #editModeBtn {
-            display: none;
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            font-size: 12px;
-            background: #eee;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            opacity: 0.6;
-            border: 1px solid #ccc;
-            z-index: 100;
-        }
-        #editModeBtn:hover {
-            opacity: 1;
-            background: #fff;
+            display: none; position: fixed; bottom: 10px; right: 10px;
+            background: #eee; padding: 6px 12px; border-radius: 4px; cursor: pointer; border: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="main-container">
     
-    <div class="instructions editor-only">
-        <strong>הוראות למורה:</strong> מלא נתונים > קבע מקסימום לציר (אם צריך) > לחץ על הכפתור הכחול. הטבלה תיסגר והקישור יתעדכן.
+    <div class="controls-bar editor-only">
+        <div>
+            <label><input type="checkbox" id="compareModeCheck" onchange="toggleCompareMode()"> <strong>מצב השוואה (שני מקומות)</strong></label>
+        </div>
+        <div class="axis-input">
+            <label>📏 מקסימום ציר גשם (מומלץ לקבוע): </label>
+            <input type="number" id="maxRainInput" placeholder="אוטו'" onchange="updateCharts()">
+        </div>
+        <button class="action-btn" onclick="generateAndSave()">💾 שמור וצור קישור</button>
+        <div style="font-size: 12px; color: #666;">(ניתן להדביק נתונים מאקסל עם Ctrl+V על חודש ינואר)</div>
     </div>
 
-    <div class="header-section">
-        <input type="text" id="locationName" placeholder="שם המקום">
-        <div class="subtitle" id="precipSubtitle">ממוצע משקעים שנתי: 0 מ"מ</div>
-    </div>
+    <div class="charts-row">
+        <div class="chart-box">
+            <div class="header-section">
+                <input type="text" id="name1" placeholder="שם המקום הראשון" oninput="updateTitles()">
+                <div class="subtitle" id="sub1">ממוצע משקעים: 0 מ"מ</div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="chart1"></canvas>
+            </div>
+        </div>
 
-    <div class="axis-setting editor-only">
-        <label for="maxRainInput">📏 קבע גובה מקסימלי לציר הגשם (להשוואה): </label>
-        <input type="number" id="maxRainInput" placeholder="אוטו'">
-    </div>
-
-    <div class="paste-hint editor-only">
-        💡 טיפ: ניתן להדביק שורה מאקסל על התא של ינואר (Ctrl+V)
-    </div>
-
-    <table id="dataTable" class="editor-only">
-        <thead>
-            <tr>
-                <th>חודש</th>
-                <th>ינו'</th>
-                <th>פבר'</th>
-                <th>מרץ</th>
-                <th>אפר'</th>
-                <th>מאי</th>
-                <th>יוני</th>
-                <th>יולי</th>
-                <th>אוג'</th>
-                <th>ספט'</th>
-                <th>אוק'</th>
-                <th>נוב'</th>
-                <th>דצמ'</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="font-weight:bold; background:#eef; color:#0056b3;">משקעים (מ"מ)</td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 0)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 1)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 2)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 3)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 4)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 5)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 6)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 7)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 8)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 9)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 10)"></td>
-                <td><input type="number" class="rain" onpaste="handlePaste(event, 'rain', 11)"></td>
-            </tr>
-            <tr>
-                <td style="font-weight:bold; background:#ffe; color:#c0392b;">טמפרטורה (C°)</td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 0)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 1)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 2)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 3)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 4)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 5)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 6)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 7)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 8)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 9)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 10)"></td>
-                <td><input type="number" class="temp" onpaste="handlePaste(event, 'temp', 11)"></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <button onclick="generateAndSave()" class="main-btn editor-only">שמור שינויים וסגור עריכה</button>
-
-    <div class="chart-wrapper">
-        <canvas id="climograph"></canvas>
+        <div class="chart-box" id="box2" style="display:none;">
+            <div class="header-section">
+                <input type="text" id="name2" placeholder="שם המקום השני" oninput="updateTitles()">
+                <div class="subtitle" id="sub2">ממוצע משקעים: 0 מ"מ</div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="chart2"></canvas>
+            </div>
+        </div>
     </div>
 
     <div class="custom-legend">
-        <div class="legend-item" onclick="toggleDataset(0)">
-            <div class="symbol-rain"></div>
-            <span class="legend-label">משקעים (מ"מ)</span>
+        <div class="legend-item">
+            <div class="symbol-rain"></div><span>משקעים (מ"מ)</span>
         </div>
-        <div class="legend-item" onclick="toggleDataset(1)">
-            <div class="symbol-temp-container">
-                <div class="symbol-temp-line"></div>
-                <div class="symbol-temp-dot"></div>
-            </div>
-            <span class="legend-label">טמפרטורה (C°)</span>
+        <div class="legend-item">
+            <div class="symbol-line"><div class="symbol-temp-dot"></div></div><span>טמפרטורה (C°)</span>
         </div>
     </div>
+
+    <div class="tables-container editor-only">
+        <div class="table-box">
+            <h3 style="margin:5px 0;">נתונים למקום הראשון</h3>
+            <table id="table1">
+                </table>
+        </div>
+
+        <div class="table-box" id="tableBox2" style="display:none;">
+            <h3 style="margin:5px 0;">נתונים למקום השני</h3>
+            <table id="table2">
+                </table>
+        </div>
+    </div>
+
 </div>
 
 <div id="editModeBtn" onclick="toggleEditMode()">✏️ עריכת נתונים</div>
 
 <script>
-    let myChart = null;
+    let chartInstance1 = null;
+    let chartInstance2 = null;
+    const months = ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יוני', 'יולי', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ'];
+
+    // ברירת מחדל
     const defaultData = {
-        name: "תל אביב (דוגמה)",
+        name: "תל אביב",
         rain: [130, 110, 70, 20, 5, 0, 0, 0, 1, 25, 80, 110],
         temp: [12, 13, 15, 19, 23, 26, 28, 29, 27, 24, 18, 14]
     };
 
+    function initTable(tableId, suffix) {
+        const table = document.getElementById(tableId);
+        let headerHTML = '<thead><tr><th>חודש</th>';
+        months.forEach(m => headerHTML += `<th>${m}</th>`);
+        headerHTML += '</tr></thead><tbody>';
+
+        // שורת גשם
+        headerHTML += `<tr><td style="background:#eef; font-weight:bold;">גשם</td>`;
+        for(let i=0; i<12; i++) {
+            headerHTML += `<td><input type="number" class="rain${suffix}" onpaste="handlePaste(event, 'rain${suffix}', ${i})" oninput="updateCharts()"></td>`;
+        }
+        headerHTML += '</tr>';
+
+        // שורת טמפרטורה
+        headerHTML += `<tr><td style="background:#ffe; font-weight:bold;">טמפ'</td>`;
+        for(let i=0; i<12; i++) {
+            headerHTML += `<td><input type="number" class="temp${suffix}" onpaste="handlePaste(event, 'temp${suffix}', ${i})" oninput="updateCharts()"></td>`;
+        }
+        headerHTML += '</tr></tbody>';
+        table.innerHTML = headerHTML;
+    }
+
+    // הדבקה מאקסל
     function handlePaste(e, className, startIndex) {
         e.preventDefault();
         const clipboardData = e.clipboardData || window.clipboardData;
@@ -334,118 +241,52 @@
                 inputs[index].value = parseFloat(val);
             }
         });
+        updateCharts();
     }
 
-    function getInputs(className) {
-        const inputs = document.querySelectorAll('.' + className);
-        return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+    function toggleCompareMode() {
+        const isCompare = document.getElementById('compareModeCheck').checked;
+        document.getElementById('box2').style.display = isCompare ? 'block' : 'none';
+        document.getElementById('tableBox2').style.display = isCompare ? 'block' : 'none';
+        updateCharts(); // רענון כדי להתאים גדלים
     }
 
-    function setInputs(className, values) {
-        const inputs = document.querySelectorAll('.' + className);
-        inputs.forEach((input, index) => {
-            if (values[index] !== undefined) input.value = values[index];
-        });
+    function getInputs(suffix) {
+        const rainInputs = document.querySelectorAll('.rain' + suffix);
+        const tempInputs = document.querySelectorAll('.temp' + suffix);
+        return {
+            rain: Array.from(rainInputs).map(i => parseFloat(i.value) || 0),
+            temp: Array.from(tempInputs).map(i => parseFloat(i.value) || 0)
+        };
     }
 
-    function loadFromURL() {
-        const params = new URLSearchParams(window.location.search);
+    function setInputs(suffix, rainData, tempData) {
+        const rainInputs = document.querySelectorAll('.rain' + suffix);
+        const tempInputs = document.querySelectorAll('.temp' + suffix);
+        rainInputs.forEach((inp, i) => { if(rainData[i] !== undefined) inp.value = rainData[i]; });
+        tempInputs.forEach((inp, i) => { if(tempData[i] !== undefined) inp.value = tempData[i]; });
+    }
+
+    function createChart(ctxId, rainData, tempData, yMax) {
+        const ctx = document.getElementById(ctxId).getContext('2d');
         
-        if (params.get('view') === 'clean') {
-            document.body.classList.add('clean-mode');
-            document.getElementById('editModeBtn').style.display = 'block';
-        }
-
-        if (params.has('name')) {
-            document.getElementById('locationName').value = decodeURIComponent(params.get('name'));
-            setInputs('rain', params.get('rain').split(',').map(Number));
-            setInputs('temp', params.get('temp').split(',').map(Number));
-            
-            // טעינת הגדרת המקסימום
-            if (params.has('ymax')) {
-                document.getElementById('maxRainInput').value = params.get('ymax');
-            }
-        } else {
-            document.getElementById('locationName').value = defaultData.name;
-            setInputs('rain', defaultData.rain);
-            setInputs('temp', defaultData.temp);
-        }
-        updateChart();
-    }
-
-    function generateAndSave() {
-        updateChart();
-        const name = document.getElementById('locationName').value;
-        const rain = getInputs('rain').join(',');
-        const temp = getInputs('temp').join(',');
-        const ymax = document.getElementById('maxRainInput').value; // שמירת המקסימום
-        
-        const newUrl = `${window.location.pathname}?name=${encodeURIComponent(name)}&rain=${rain}&temp=${temp}&ymax=${ymax}&view=clean`;
-        window.history.pushState({path: newUrl}, '', newUrl);
-        
-        const btn = document.querySelector('button.main-btn');
-        const originalText = btn.innerText;
-        btn.innerText = "נשמר! סוגר...";
-        btn.style.backgroundColor = "#27ae60";
-
-        setTimeout(() => {
-            document.body.classList.add('clean-mode');
-            document.getElementById('editModeBtn').style.display = 'block';
-            btn.innerText = originalText;
-            btn.style.backgroundColor = "#2980b9";
-        }, 500);
-    }
-
-    function toggleEditMode() {
-        document.body.classList.remove('clean-mode');
-        document.getElementById('editModeBtn').style.display = 'none';
-        
-        const params = new URLSearchParams(window.location.search);
-        params.delete('view');
-        const newUrl = `${window.location.pathname}?${params.toString()}`;
-        window.history.pushState({path: newUrl}, '', newUrl);
-    }
-
-    function toggleDataset(index) {
-        const meta = myChart.getDatasetMeta(index);
-        meta.hidden = meta.hidden === null ? !myChart.data.datasets[index].hidden : null;
-        myChart.update();
-    }
-
-    function updateChart() {
-        const rainData = getInputs('rain');
-        const tempData = getInputs('temp');
-        
-        // קריאת ערך המקסימום שהוגדר
-        const userMaxY = document.getElementById('maxRainInput').value;
-        const yAxisMax = userMaxY ? parseFloat(userMaxY) : null;
-
-        const totalRain = rainData.reduce((a, b) => a + b, 0);
-        document.getElementById('precipSubtitle').innerText = 'ממוצע משקעים שנתי: ' + Math.round(totalRain) + ' מ"מ';
-
-        const ctx = document.getElementById('climograph').getContext('2d');
-
-        if (myChart) {
-            myChart.destroy();
-        }
-
-        myChart = new Chart(ctx, {
+        return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'],
+                labels: months,
                 datasets: [
                     {
-                        label: 'משקעים (מ"מ)',
+                        label: 'משקעים',
                         data: rainData,
                         backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderColor: 'blue',
                         borderWidth: 1,
                         yAxisID: 'y',
                         order: 2,
                         barPercentage: 0.6
                     },
                     {
-                        label: 'טמפרטורה (C°)',
+                        label: 'טמפרטורה',
                         data: tempData,
                         type: 'line',
                         borderColor: '#e74c3c',
@@ -453,8 +294,7 @@
                         borderWidth: 3,
                         pointBackgroundColor: '#fff',
                         pointBorderColor: '#e74c3c',
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 4,
                         tension: 0.2,
                         yAxisID: 'y1',
                         order: 1
@@ -464,48 +304,121 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'nearest',
-                    intersect: true,
-                    axis: 'x'
-                },
-                plugins: {
-                    legend: { display: false },
-                    title: { display: false },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        cornerRadius: 4,
-                        displayColors: true
-                    }
-                },
+                plugins: { legend: { display: false }, title: { display: false } },
                 scales: {
                     y: {
                         type: 'linear',
-                        display: true,
                         position: 'left',
-                        max: yAxisMax, // שימוש בערך שהוגדר (אם יש)
-                        title: { display: true, text: 'משקעים (מ"מ)', font: {weight: 'bold'} },
+                        max: yMax,
                         beginAtZero: true,
-                        grid: { color: '#f0f0f0' }
+                        title: { display: true, text: 'מ"מ' }
                     },
                     y1: {
                         type: 'linear',
-                        display: true,
                         position: 'right',
-                        title: { display: true, text: 'טמפרטורה (C°)', font: {weight: 'bold'} },
-                        grid: { drawOnChartArea: false }
-                    },
-                    x: {
-                        grid: { display: false }
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'C°' }
                     }
                 }
             }
         });
     }
 
-    window.onload = loadFromURL;
+    function updateCharts() {
+        const data1 = getInputs('1');
+        const data2 = getInputs('2');
+        
+        // עדכון כותרות משנה
+        const sum1 = data1.rain.reduce((a,b)=>a+b, 0);
+        const sum2 = data2.rain.reduce((a,b)=>a+b, 0);
+        document.getElementById('sub1').innerText = `ממוצע משקעים: ${Math.round(sum1)} מ"מ`;
+        document.getElementById('sub2').innerText = `ממוצע משקעים: ${Math.round(sum2)} מ"מ`;
+
+        // מקסימום ציר
+        const userMax = document.getElementById('maxRainInput').value;
+        const yMax = userMax ? parseFloat(userMax) : null;
+
+        if (chartInstance1) chartInstance1.destroy();
+        chartInstance1 = createChart('chart1', data1.rain, data1.temp, yMax);
+
+        if (document.getElementById('compareModeCheck').checked) {
+            if (chartInstance2) chartInstance2.destroy();
+            chartInstance2 = createChart('chart2', data2.rain, data2.temp, yMax);
+        }
+    }
+
+    function updateTitles() {
+        // הכותרות מתעדכנות בזמן אמת דרך ה-Input עצמו
+    }
+
+    function generateAndSave() {
+        const name1 = document.getElementById('name1').value;
+        const data1 = getInputs('1');
+        
+        const isCompare = document.getElementById('compareModeCheck').checked;
+        const name2 = document.getElementById('name2').value;
+        const data2 = getInputs('2');
+        
+        const ymax = document.getElementById('maxRainInput').value;
+
+        let newUrl = `${window.location.pathname}?view=clean&n1=${encodeURIComponent(name1)}&r1=${data1.rain}&t1=${data1.temp}`;
+        
+        if (isCompare) {
+            newUrl += `&compare=1&n2=${encodeURIComponent(name2)}&r2=${data2.rain}&t2=${data2.temp}`;
+        }
+        if (ymax) newUrl += `&ymax=${ymax}`;
+
+        window.history.pushState({path: newUrl}, '', newUrl);
+        
+        // כניסה למצב נקי
+        document.body.classList.add('clean-mode');
+        document.getElementById('editModeBtn').style.display = 'block';
+    }
+
+    function toggleEditMode() {
+        document.body.classList.remove('clean-mode');
+        document.getElementById('editModeBtn').style.display = 'none';
+        const params = new URLSearchParams(window.location.search);
+        params.delete('view');
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({path: newUrl}, '', newUrl);
+    }
+
+    // טעינה
+    window.onload = function() {
+        initTable('table1', '1');
+        initTable('table2', '2');
+
+        const params = new URLSearchParams(window.location.search);
+        
+        // טעינת שם 1 ונתונים 1
+        if (params.has('n1')) {
+            document.getElementById('name1').value = decodeURIComponent(params.get('n1'));
+            setInputs('1', params.get('r1').split(',').map(Number), params.get('t1').split(',').map(Number));
+        } else {
+            setInputs('1', defaultData.rain, defaultData.temp);
+            document.getElementById('name1').value = defaultData.name;
+        }
+
+        // בדיקת השוואה
+        if (params.get('compare') === '1') {
+            document.getElementById('compareModeCheck').checked = true;
+            document.getElementById('name2').value = decodeURIComponent(params.get('n2'));
+            setInputs('2', params.get('r2').split(',').map(Number), params.get('t2').split(',').map(Number));
+            toggleCompareMode();
+        }
+
+        if (params.has('ymax')) {
+            document.getElementById('maxRainInput').value = params.get('ymax');
+        }
+
+        if (params.get('view') === 'clean') {
+            document.body.classList.add('clean-mode');
+            document.getElementById('editModeBtn').style.display = 'block';
+        }
+        
+        updateCharts();
+    };
 </script>
 
 </body>
